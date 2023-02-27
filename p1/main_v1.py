@@ -9,8 +9,11 @@ Created on Sun Feb 26 18:40:24 2023
 import sys
 import requests
 from bs4 import BeautifulSoup
-from PyQt5.QtWidgets import QDesktopWidget,QApplication, QMainWindow, QWidget,QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QDateEdit,QAction,QMenuBar
+from PyQt5.QtWidgets import QDesktopWidget,QApplication, QMainWindow, QWidget,QLabel, QVBoxLayout, QHBoxLayout, QPushButton
+from PyQt5.QtWidgets import QDateEdit,QAction,QMenuBar,QMessageBox,QToolTip
 from PyQt5.QtCore import QDate
+from PyQt5.QtGui import QIcon,QFont
+
 
 class MainWindow(QMainWindow):
     
@@ -28,12 +31,21 @@ class MainWindow(QMainWindow):
         qr.moveCenter(cp)
         self.move(qr.topLeft())
         
+        
+        icono = QIcon('./img/app_icon.png')
+        print(icono)
+        self.setWindowIcon(icono)
+
+        
         self.init_ui()
 
 
     def init_ui(self):
         
-
+        self.statusBar().showMessage('Ready')
+        
+        
+        
         ## Widgets
         
         self.label = QLabel('¡Hola, mundo!', self)
@@ -50,7 +62,18 @@ class MainWindow(QMainWindow):
         self.button.setGeometry(100, 110, 100, 30)
         self.button.clicked.connect(self.buttonClicked)
 
-        '''
+
+        ## Cerrar ventana
+        instance = QApplication.instance()
+        self.buttonClose = QPushButton('Cerrar Aplicación', self)
+        self.buttonClose.setGeometry(350, 150, 100, 30)
+        
+        QToolTip.setFont(QFont('SansSerif', 8))
+        self.buttonClose.setToolTip('This is a <b>QPushButton</b> widget')
+
+        self.buttonClose.clicked.connect(instance.closeAllWindows)
+
+        
         # Selección de la fecha
         self.date_label = QLabel("Selecciona la fecha: ", self)
         self.date_label.setGeometry(100, 200, 200, 50)
@@ -75,13 +98,21 @@ class MainWindow(QMainWindow):
         self.scraping_button.setGeometry(100, 280, 100, 30)
         #self.scraping_button.move(100,280)
         self.scraping_button.clicked.connect(self.do_scraping)
-        '''
+        
 
     def buttonClicked(self):
         self.clicksBotton += 1
-
         self.labelClick.setText(f'¡Has hecho clic en el botón {self.clicksBotton} veces')
         
+    def closeEvent(self,event):
+        reply = QMessageBox.question(self,
+                                         'Events - Slot',
+                                         "Realmente desea cerrar la aplicacion",
+                                          QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
 
 
     def do_scraping(self):
